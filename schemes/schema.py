@@ -3,8 +3,8 @@ from pydantic import BaseModel, EmailStr
 class UserDetails(BaseModel):
     email: EmailStr
     password: str
-    # role: str
+    role: str
 
-class userDetail_update(BaseModel):
+class userLoginDetail(BaseModel):
     email: EmailStr
     password: str

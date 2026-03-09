@@ -1,4 +1,5 @@
 from fastapi.requests import Request
+from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
@@ -11,7 +12,7 @@ ALGORITHM = "HS256"
 SECRET_KEY = "SECRET"
 
 async def password_hash(password):
-    return pwd_context.hash()
+    return pwd_context.hash(password)
 
 async def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -37,12 +38,17 @@ def create_refresh_token (request: Request, data: dict, expires_delta: timedelta
 # Oauth2_scheme = OAuth2PasswordBearer(tokenUrl= "login")
 
 
-async def get_current_user(request: Request):
-    token = request.cookies.get("access_token")
+def get_current_user(request: Request):
+    access_token = request.cookies.get("access_token")
+    refresh_token = request.cookies.get("refresh_token")
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_name = payload.get("sub")
-        return payload
+        role = payload.get("role")
+        return {"user": user_name, "role": role}
     except JWTError:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
     
