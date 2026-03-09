@@ -73,7 +73,7 @@ async def user_update(user: UserDetails, db: AsyncSession = Depends(get_db), cur
     # if not verify_password(user.password, user_info.password)
     
     user_info.email = user.email
-    user_info.password = password_hash(user.password)
+    user_info.password = password_hash(user.password) 
 
     print(user_info)
 
